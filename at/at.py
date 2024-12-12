@@ -1,5 +1,3 @@
-from tabulate import tabulate
-
 medicamentos = []
 
 
@@ -62,21 +60,20 @@ def inicializar_disponibilidade():
 
 
 def listar_medicamentos(medicamentos):
-    data = []
-    for medicamento in medicamentos:
-        row = [
-            medicamento["codigo"],
-            medicamento["descricao"],
-            medicamento["quantidade_disponivel"],
-            medicamento["preco_venda"],
-        ]
-        data.append(row)
     print(
-        tabulate(
-            data,
-            headers=["codigo", "descrição", "quantidade disponível", "valor unitário"],
-        )
+        "Código".ljust(10),
+        "Descrição".ljust(15),
+        "Quantidade Disponível".ljust(25),
+        "Valor Unitário".ljust(20),
     )
+    print("-" * 70)
+    for medicamento in medicamentos:
+        print(
+            f'{medicamento["codigo"]}'.ljust(10),
+            f'{medicamento["descricao"]}'.ljust(15),
+            f'{medicamento["quantidade_disponivel"]}'.ljust(25),
+            f'{medicamento["preco_venda"]}'.ljust(20),
+        )
 
 
 def ordenar_quantidade(desc=False):
