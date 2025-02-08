@@ -1,0 +1,21 @@
+"id","nome","relacao","funcionario_id","genero","idade"
+1,Luana Silva,filhos,1,"feminino",10
+2,Ana Silva,filhos,1,"feminino",8
+3,Camila Oliveira,conjugues,2,"feminino",30
+4,Jorge Oliveira,filhos,2,"masculino",5
+5,Pedro Santos,pais,3,"masculino",60
+6,Sônia Santos,conjugues,3,"feminino",55
+7,Marcos Costa,netos,4,"masculino",3
+8,Patrícia Costa,conjugues,4,"feminino",30
+9,Bruna Almeida,filhos,5,"feminino",12
+10,Carlos Almeida,outros,5,"masculino",23
+11,Raquel Martins,conjugues,6,"feminino",27
+12,Eduardo Martins,filhos,6,"masculino",45
+13,Lúcia Souza,pais,7,"feminino", 23
+14,Ricardo Souza,netos,7,"masculino",35
+15,Vera Lima,outros,8,"feminino",12
+16,Juliana Lima,pais,8,"feminino",6
+17,Felipe Pereira,tios,9,"masculino",60
+18,Paula Pereira,conjugues,9,"feminino",30
+19,Márcia Gomes,filhos,10,"feminino",15
+20,Gustavo Gomes,netos,10,"masculino",14
