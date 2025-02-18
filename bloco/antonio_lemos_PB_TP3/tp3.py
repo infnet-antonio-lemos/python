@@ -150,10 +150,6 @@ def popular_tabelas():
     conexao.close()
 
 
-criar_tabelas()
-popular_tabelas()
-
-
 def listar_tabelas():
     # csv
     print("Cargos")
@@ -336,7 +332,7 @@ def departamento_numero_dependentes():
         for func in funcs:
             deps = [dep for dep in dependentes if dep["funcionario_id"] == func["id"]]
             dependentes_count += len(deps)
-        if dependentes_count > maior_contagem or maior_departamento == None:
+        if dependentes_count > maior_contagem or maior_departamento is None:
             maior_departamento = departamento
             maior_contagem = dependentes_count
     print(
@@ -367,6 +363,3 @@ def media_salario_por_departamento():
         print(
             f"Departamento: {dep['nome']} / id: {dep['id']} / Média: {dep['media_salarial']}"
         )
-
-
-media_salario_por_departamento()
