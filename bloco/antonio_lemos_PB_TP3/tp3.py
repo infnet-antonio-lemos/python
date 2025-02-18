@@ -15,6 +15,8 @@ departamentos = ler_csv("departamentos.csv")
 dependentes = ler_csv("dependentes.csv")
 funcionarios = ler_csv("funcionarios.csv")
 pagamentos_salarios = ler_csv("pagamentos_salarios.csv")
+projetos = ler_csv("projetos.csv")
+recursos_projetos = ler_csv("recursos_projetos.csv")
 
 
 def criar_tabelas():
@@ -31,6 +33,7 @@ def criar_tabelas():
         );
         """
     )
+    print("Tabela funcionarios criada")
     cursor.execute(
         """
         CREATE TABLE IF NOT EXISTS `cargos` (
@@ -41,6 +44,7 @@ def criar_tabelas():
         );
         """
     )
+    print("Tabela cargos criada")
     cursor.execute(
         """
         CREATE TABLE IF NOT EXISTS `departamentos` (
@@ -52,6 +56,7 @@ def criar_tabelas():
         );
         """
     )
+    print("Tabela departamentos criada")
     cursor.execute(
         """
         CREATE TABLE IF NOT EXISTS `pagamentos_salario` (
@@ -63,6 +68,7 @@ def criar_tabelas():
         );
     """
     )
+    print("Tabela pagamentos_salario criada")
     cursor.execute(
         """
     CREATE TABLE IF NOT EXISTS `dependentes` (
@@ -76,6 +82,37 @@ def criar_tabelas():
     );
     """
     )
+    print("Tabela dependentes criada")
+    cursor.execute(
+        """
+        CREATE TABLE IF NOT EXISTS `projetos` (
+            `id` INTEGER PRIMARY KEY,
+            `nome` TEXT NOT NULL,
+            `descricao` TEXT NOT NULL,
+            `data_inicio` DATE NOT NULL,
+            `data_conclusao` DATE NULL,
+            `custo` REAL NOT NULL,
+            `status` TEXT CHECK(status IN ('planejamento', 'execução', 'concluído', 'cancelado')) NOT NULL,
+            `funcionario_id` INTEGER NOT NULL,
+            FOREIGN KEY (`funcionario_id`) REFERENCES `funcionarios` (`id`)
+        );
+        """
+    )
+    print("Tabela projetos criada")
+    cursor.execute(
+        """
+        CREATE TABLE IF NOT EXISTS `recursos_projetos` (
+            `id` INTEGER PRIMARY KEY,
+            `projeto_id` INTEGER NOT NULL,
+            `descricao` TEXT NOT NULL,
+            `tipo` TEXT CHECK(tipo IN ('financeiro', 'material', 'humano')),
+            `quantidade` INTEGER NOT NULL,
+            `data_utilizacao` DATE NOT NULL,
+            FOREIGN KEY (`projeto_id`) REFERENCES `projetos` (`id`)
+        );
+        """
+    )
+    print("Tabela recursos_projetos criada")
     conexao.commit()
     conexao.close()
 
@@ -86,15 +123,16 @@ def popular_tabelas():
     for cargo in cargos:
         cursor.execute(
             """
-            INSERT INTO `cargos` (`id`, `descricao`, `salario_base`, `nivel`)
+            INSERT OR IGNORE INTO `cargos` (`id`, `descricao`, `salario_base`, `nivel`)
             VALUES (?, ?, ?, ?);
             """,
             (cargo["id"], cargo["descricao"], cargo["salario_base"], cargo["nivel"]),
         )
+    print("Tabela cargos populada")
     for departamento in departamentos:
         cursor.execute(
             """
-            INSERT INTO `departamentos` (`id`, `nome`, `gerente_id`, `andar`)
+            INSERT OR IGNORE INTO `departamentos` (`id`, `nome`, `gerente_id`, `andar`)
             VALUES (?, ?, ?, ?);
             """,
             (
@@ -104,10 +142,11 @@ def popular_tabelas():
                 departamento["andar"],
             ),
         )
+    print("Tabela departamentos populada")
     for dependente in dependentes:
         cursor.execute(
             """
-            INSERT INTO `dependentes` (`id`, `nome`, `relacao`, `funcionario_id`, `genero`, `idade`)
+            INSERT OR IGNORE INTO `dependentes` (`id`, `nome`, `relacao`, `funcionario_id`, `genero`, `idade`)
             VALUES (?, ?, ?, ?, ?, ?);
             """,
             (
@@ -119,10 +158,11 @@ def popular_tabelas():
                 dependente["idade"],
             ),
         )
+    print("Tabela dependentes populada")
     for funcionario in funcionarios:
         cursor.execute(
             """
-            INSERT INTO `funcionarios` (`id`, `nome`, `salario`, `cargo_id`, `departamento_id`)
+            INSERT OR IGNORE INTO `funcionarios` (`id`, `nome`, `salario`, `cargo_id`, `departamento_id`)
             VALUES (?, ?, ?, ?, ?);
             """,
             (
@@ -133,10 +173,11 @@ def popular_tabelas():
                 funcionario["departamento_id"],
             ),
         )
+    print("Tabela funcionarios populada")
     for pagamento_salario in pagamentos_salarios:
         cursor.execute(
             """
-            INSERT INTO `pagamentos_salario` (`id`, `data_pagamento`, `valor`, `funcionario_id`)
+            INSERT OR IGNORE INTO `pagamentos_salario` (`id`, `data_pagamento`, `valor`, `funcionario_id`)
             VALUES (?, ?, ?, ?);
             """,
             (
@@ -146,6 +187,25 @@ def popular_tabelas():
                 pagamento_salario["funcionario_id"],
             ),
         )
+    print("Tabela pagamentos_salario populada")
+    for projeto in projetos:
+        cursor.execute(
+            """
+            INSERT OR IGNORE INTO `projetos` (`id`,`nome`,`descricao`,`data_inicio`,`data_conclusao`,`custo`,`status`,`funcionario_id`)
+            VALUES (?, ? ,? ,? ,? ,? ,? ,?);
+            """,
+            (
+                projeto["id"],
+                projeto["nome"],
+                projeto["descricao"],
+                projeto["data_inicio"],
+                projeto["data_conclusao"],
+                projeto["custo"],
+                projeto["status"],
+                projeto["funcionario_id"],
+            ),
+        )
+    print("Tabela projetos populada")
     conexao.commit()
     conexao.close()
 
@@ -363,3 +423,43 @@ def media_salario_por_departamento():
         print(
             f"Departamento: {dep['nome']} / id: {dep['id']} / Média: {dep['media_salarial']}"
         )
+
+
+def media_salario_projetos_concluidos():
+    conexao = sqlite3.connect("empresa.db")
+    cursor = conexao.cursor()
+    resultado = cursor.execute(
+        """
+        SELECT
+            d.nome,
+            AVG(ps.valor) AS media
+        FROM funcionarios f
+        INNER JOIN (
+            SELECT
+                funcionario_id,
+                MAX(data_pagamento) AS ultima_data
+            FROM
+                pagamentos_salario ps
+            GROUP BY
+                funcionario_id
+        ) up ON up.funcionario_id = f.id
+        INNER JOIN projetos p
+            ON p.funcionario_id = f.id
+        INNER JOIN departamentos d
+            ON f.departamento_id = d.id
+        INNER JOIN pagamentos_salario ps
+            ON ps.funcionario_id = f.id
+            AND ps.data_pagamento = up.ultima_data
+        WHERE p.status = 'concluído'
+        GROUP BY d.id;
+        """
+    )
+    for linha in resultado:
+        print(linha)
+
+
+if __name__ == "__main__":
+    criar_tabelas()
+    popular_tabelas()
+
+    media_salario_projetos_concluidos()

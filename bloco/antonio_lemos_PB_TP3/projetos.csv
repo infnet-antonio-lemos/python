@@ -1,0 +1,11 @@
+"id","nome","descricao","data_inicio","data_conclusao","custo","status","funcionario_id"
+1,Projeto Alpha,Desenvolvimento de um novo sistema de gestão,2024-01-15,2024-06-30,50000,concluído,1
+2,Projeto Beta,Campanha de marketing digital para o lançamento de um produto,2024-02-01,2024-07-15,30000,concluído,4
+3,Projeto Gamma,Atualização da infraestrutura de TI,2024-03-10,,75000,execução,2
+4,Projeto Delta,Análise de mercado para expansão internacional,2024-04-05,,20000,planejamento,5
+5,Projeto Epsilon,Implementação de um novo sistema de RH,2024-05-20,2024-11-30,40000,planejamento,8
+6,Projeto Zeta,Desenvolvimento de um aplicativo móvel,2024-06-01,,60000,execução,9
+7,Projeto Eta,Campanha de endomarketing para engajamento interno,2024-07-01,2024-09-30,15000,concluído,6
+8,Projeto Theta,Automação de processos financeiros,2024-08-01,,35000,cancelado,7
+9,Projeto Iota,Desenvolvimento de um portal de vendas online,2024-09-01,,45000,cancelado,10
+10,Projeto Kappa,Reestruturação do departamento de TI,2024-10-01,,55000,execução,3
