@@ -1,6 +1,7 @@
 import csv
 import sqlite3
 import datetime
+import json
 
 
 def ler_csv(nome_arquivo):
@@ -538,6 +539,36 @@ def projetos_em_execucao():
         print(linha)
 
 
+def projeto_maior_dependentes():
+    conexao = sqlite3.connect("empresa.db")
+    cursor = conexao.cursor()
+    resultado = cursor.execute(
+        """
+        SELECT 
+            p.id,
+            p.nome,
+            quantidade_dependentes.quantidade_dependentes
+        FROM projetos p
+        INNER JOIN (
+            SELECT
+                COUNT(d.id) as quantidade_dependentes,
+                f.id AS funcionario_id
+            FROM funcionarios f
+            INNER JOIN dependentes d
+                ON d.funcionario_id = f.id
+            GROUP BY f.id
+        ) quantidade_dependentes
+            ON p.funcionario_id = quantidade_dependentes.funcionario_id
+        ORDER BY quantidade_dependentes.quantidade_dependentes DESC
+        LIMIT 1;
+        """
+    )
+    for linha in resultado:
+        print(linha)
+
+
 if __name__ == "__main__":
     criar_tabelas()
     popular_tabelas()
+
+    projeto_maior_dependentes()
