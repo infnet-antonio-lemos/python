@@ -206,6 +206,26 @@ def popular_tabelas():
             ),
         )
     print("Tabela projetos populada")
+    for recurso in recursos_projetos:
+        cursor.execute(
+            """
+            INSERT OR IGNORE INTO `recursos_projetos` (
+                `id`,`projeto_id`,`descricao`,`tipo`,`quantidade`,`data_utilizacao`
+            )
+            VALUES (
+                ?, ?, ?, ?, ?, ?
+            )
+            """,
+            (
+                recurso["id"],
+                recurso["projeto_id"],
+                recurso["descricao"],
+                recurso["tipo"],
+                recurso["quantidade"],
+                recurso["data_utilizacao"],
+            ),
+        )
+    print("Tabela recursos_projetos populada")
     conexao.commit()
     conexao.close()
 
@@ -458,8 +478,66 @@ def media_salario_projetos_concluidos():
         print(linha)
 
 
+def recursos_mais_usados():
+    conexao = sqlite3.connect("empresa.db")
+    cursor = conexao.cursor()
+    resultado = cursor.execute(
+        """
+        SELECT 
+            descricao,
+            quantidade
+        FROM recursos_projetos rp
+        ORDER BY rp.quantidade DESC
+        LIMIT 3;
+        """
+    )
+    for linha in resultado:
+        print(linha)
+
+
+def custo_projetos():
+    conexao = sqlite3.connect("empresa.db")
+    cursor = conexao.cursor()
+    resultado = cursor.execute(
+        """
+        SELECT
+            SUM(p.custo),
+            d.nome
+        FROM projetos p
+        INNER JOIN funcionarios f
+            ON f.id = p.funcionario_id
+        INNER JOIN departamentos d
+            ON d.id = f.departamento_id
+        WHERE p.status = 'concluído'
+        GROUP BY d.id;
+        """
+    )
+    for linha in resultado:
+        print(linha)
+
+
+def projetos_em_execucao():
+    conexao = sqlite3.connect("empresa.db")
+    cursor = conexao.cursor()
+    resultado = cursor.execute(
+        """
+        SELECT
+            p.nome,
+            p.descricao,
+            p.custo,
+            p.data_inicio,
+            p.data_conclusao,
+            f.nome
+        FROM projetos p
+        INNER JOIN funcionarios f
+            ON f.id = p.funcionario_id
+        WHERE p.status = 'execução';
+        """
+    )
+    for linha in resultado:
+        print(linha)
+
+
 if __name__ == "__main__":
     criar_tabelas()
     popular_tabelas()
-
-    media_salario_projetos_concluidos()
