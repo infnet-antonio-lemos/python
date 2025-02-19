@@ -20,6 +20,11 @@ projetos = ler_csv("projetos.csv")
 recursos_projetos = ler_csv("recursos_projetos.csv")
 
 
+def escrever_json(nome_arquivo, data):
+    with open(nome_arquivo, "w") as arquivo:
+        json.dump(data, arquivo, ensure_ascii=False)
+
+
 def criar_tabelas():
     conexao = sqlite3.connect("empresa.db")
     cursor = conexao.cursor()
@@ -484,7 +489,8 @@ def recursos_mais_usados():
     cursor = conexao.cursor()
     resultado = cursor.execute(
         """
-        SELECT 
+        SELECT
+            id,
             descricao,
             quantidade
         FROM recursos_projetos rp
@@ -492,8 +498,15 @@ def recursos_mais_usados():
         LIMIT 3;
         """
     )
+    recursos = []
     for linha in resultado:
-        print(linha)
+        recurso = {
+            "id": linha[0],
+            "descricao": linha[1],
+            "quantidade": linha[2],
+        }
+        recursos.append(recurso)
+    escrever_json("recursos_mais_usados.json", recursos)
 
 
 def custo_projetos():
@@ -502,8 +515,9 @@ def custo_projetos():
     resultado = cursor.execute(
         """
         SELECT
-            SUM(p.custo),
-            d.nome
+            d.id,
+            d.nome,
+            SUM(p.custo) AS custo_total
         FROM projetos p
         INNER JOIN funcionarios f
             ON f.id = p.funcionario_id
@@ -513,8 +527,15 @@ def custo_projetos():
         GROUP BY d.id;
         """
     )
+    custos = []
     for linha in resultado:
-        print(linha)
+        custo = {
+            "id_departamento": linha[0],
+            "nome_departamento": linha[1],
+            "custo_total": linha[2],
+        }
+        custos.append(custo)
+    escrever_json("custos_total_projetos.json", custos)
 
 
 def projetos_em_execucao():
@@ -523,11 +544,13 @@ def projetos_em_execucao():
     resultado = cursor.execute(
         """
         SELECT
+            p.id,
             p.nome,
             p.descricao,
             p.custo,
             p.data_inicio,
             p.data_conclusao,
+            f.id,
             f.nome
         FROM projetos p
         INNER JOIN funcionarios f
@@ -535,8 +558,20 @@ def projetos_em_execucao():
         WHERE p.status = 'execução';
         """
     )
+    lista_projetos = []
     for linha in resultado:
-        print(linha)
+        projeto = {
+            "id": linha[0],
+            "nome": linha[1],
+            "descricao": linha[2],
+            "custo": linha[3],
+            "data_inicio": linha[4],
+            "data_conclusao": linha[5],
+            "id_funcionario": linha[6],
+            "nome_funcionario": linha[7],
+        }
+        lista_projetos.append(projeto)
+    escrever_json("projetos_execucao.json", lista_projetos)
 
 
 def projeto_maior_dependentes():
@@ -571,4 +606,6 @@ if __name__ == "__main__":
     criar_tabelas()
     popular_tabelas()
 
-    projeto_maior_dependentes()
+    recursos_mais_usados()
+    projetos_em_execucao()
+    custo_projetos()
