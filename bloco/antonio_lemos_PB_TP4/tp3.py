@@ -2,6 +2,10 @@ import csv
 import sqlite3
 import datetime
 import json
+from fastapi import FastAPI
+import uvicorn
+
+app = FastAPI()
 
 
 def ler_csv(nome_arquivo):
@@ -507,6 +511,7 @@ def recursos_mais_usados():
         }
         recursos.append(recurso)
     escrever_json("recursos_mais_usados.json", recursos)
+    return recursos
 
 
 def custo_projetos():
@@ -536,6 +541,7 @@ def custo_projetos():
         }
         custos.append(custo)
     escrever_json("custos_total_projetos.json", custos)
+    return custos
 
 
 def projetos_em_execucao():
@@ -572,6 +578,7 @@ def projetos_em_execucao():
         }
         lista_projetos.append(projeto)
     escrever_json("projetos_execucao.json", lista_projetos)
+    return lista_projetos
 
 
 def projeto_maior_dependentes():
@@ -602,10 +609,23 @@ def projeto_maior_dependentes():
         print(linha)
 
 
+@app.get("/projetos/execucao")
+def get_projetos_execucao():
+    return projetos_em_execucao()
+
+
+@app.get("/projetos/custos")
+def get_projetos_custos():
+    return custo_projetos()
+
+
+@app.get("/recursos-mais-usados")
+def get_recursos_mais_usados():
+    return recursos_mais_usados()
+
+
 if __name__ == "__main__":
     criar_tabelas()
     popular_tabelas()
 
-    recursos_mais_usados()
-    projetos_em_execucao()
-    custo_projetos()
+    uvicorn.run(app, host="localhost", port=8080)
